@@ -80,22 +80,32 @@ const endings = [
 
 const platforms = {
   meituan: {
+    name: "美团",
     intent: "intent://www.meituan.com/#Intent;scheme=imeituan;package=com.sankuai.meituan;end",
-    scheme: "imeituan://www.meituan.com"
+    scheme: "imeituan://www.meituan.com",
+    web: "https://i.meituan.com/",
+    route: "美团 → 我的 → 待评价/订单 → 粘贴文案 → 提交"
   },
   ctrip: {
+    name: "携程",
     intent: "intent://wireless/#Intent;scheme=ctrip;package=ctrip.android.view;end",
-    scheme: "ctrip://wireless"
+    scheme: "ctrip://wireless",
+    web: "https://m.ctrip.com/webapp/myctrip/",
+    route: "携程 → 我的 → 全部订单 → 找到订单 → 评价 → 粘贴"
   },
   fliggy: {
+    name: "飞猪",
     intent: "intent://m.fliggy.com/#Intent;scheme=fliggy;package=com.taobao.trip;end",
-    scheme: "fliggy://"
+    scheme: "fliggy://",
+    web: "https://m.fliggy.com/",
+    route: "飞猪 → 我的 → 全部订单 → 找到订单 → 评价 → 粘贴"
   }
 };
 
 const state = { rating: 0, tags: [], platform: "meituan", used: new Set() };
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+const isWechat = () => /MicroMessenger/i.test(navigator.userAgent);
 const isAndroid = () => /Android/i.test(navigator.userAgent);
 
 function selectRating(button) {
@@ -123,11 +133,7 @@ function selectPlatform(button) {
     item.classList.toggle("is-active", active);
     item.setAttribute("aria-pressed", String(active));
   });
-  if (!$("#resultCard").hidden) highlightJumpButtons();
-}
-
-function appUrl(platform) {
-  return isAndroid() ? platform.intent : platform.scheme;
+  if (!$("#resultCard").hidden) showJumpHint();
 }
 
 function composeReview() {
@@ -161,10 +167,21 @@ function composeReview() {
   return text;
 }
 
-function highlightJumpButtons() {
+function showJumpHint(message) {
+  const platform = platforms[state.platform];
   $$(".jump-button").forEach((button) => {
     button.classList.toggle("is-secondary", button.dataset.jump !== state.platform);
   });
+  const hint = $("#jumpHint");
+  if (message) {
+    hint.replaceChildren(message);
+    return;
+  }
+  if (isWechat()) {
+    hint.innerHTML = `💡 <strong>文案已复制。</strong><br>当前在微信里，微信通常会拦截打开App。<br><strong>请点右上角“…” → 在浏览器打开</strong>，再点下方打开${platform.name}App。`;
+  } else {
+    hint.innerHTML = `💡 <strong>操作指引：</strong><br>1. 文案已复制 ✅<br>2. 点“打开${platform.name}App”<br>3. ${platform.route}`;
+  }
 }
 
 function generateReview() {
@@ -173,7 +190,7 @@ function generateReview() {
   $("#resultCard").hidden = false;
   $("#copyButton").textContent = "📋 复制文案";
   $("#copyButton").classList.remove("is-copied");
-  highlightJumpButtons();
+  showJumpHint();
   $("#resultCard").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
@@ -186,28 +203,37 @@ async function copyReview() {
   } catch (_) {
     const field = document.createElement("textarea");
     field.value = text;
-    field.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0";
+    field.style.cssText = "position:fixed;opacity:0;top:0";
     document.body.append(field);
-    field.focus();
     field.select();
-    field.setSelectionRange(0, text.length);
-    try { copied = document.execCommand("copy"); } catch (_) {}
+    copied = document.execCommand("copy");
     field.remove();
   }
   if (!copied) {
-    $("#copyButton").textContent = "复制失败，请长按文案复制";
+    showJumpHint("复制失败，请长按上方文案手动复制。");
     return;
   }
   $("#copyButton").textContent = "✅ 已复制，点下方打开平台";
   $("#copyButton").classList.add("is-copied");
+  showJumpHint();
 }
 
 function jumpTo(button) {
-  selectPlatform($(`.platform-button[data-platform="${button.dataset.jump}"]`));
+  const platform = platforms[button.dataset.jump];
+  state.platform = button.dataset.jump;
+  selectPlatform($(`.platform-button[data-platform="${state.platform}"]`));
+  if (isWechat()) {
+    $("#wechatGuide").hidden = false;
+    $("#jumpHint").innerHTML = `💡 <strong>微信里可能无法打开${platform.name}App。</strong><br>请点右上角“…” → <strong>在浏览器打开</strong>，然后再次点击“打开${platform.name}App”。文案已复制，可在订单评价页粘贴。`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  $("#jumpHint").innerHTML = `💡 <strong>正在尝试打开${platform.name}App。</strong><br>${platform.route}<br>如果没有跳转，请手动打开 App；也可<a href="${platform.web}" target="_blank" rel="noopener noreferrer">进入${platform.name}手机版网页</a>。`;
+  window.location.href = isAndroid() ? platform.intent : platform.scheme;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  $$(".jump-button").forEach((button) => { button.href = appUrl(platforms[button.dataset.jump]); });
+  if (isWechat()) $("#wechatGuide").hidden = false;
   $$(".rating-button").forEach((button) => button.addEventListener("click", () => selectRating(button)));
   $$(".tag-button").forEach((button) => button.addEventListener("click", () => toggleTag(button)));
   $$(".platform-button").forEach((button) => button.addEventListener("click", () => selectPlatform(button)));
