@@ -133,10 +133,6 @@ function selectPlatform(button) {
     item.classList.toggle("is-active", active);
     item.setAttribute("aria-pressed", String(active));
   });
-  $("#copyButton").href = appUrl(platforms[state.platform]);
-  if (!$("#copyButton").classList.contains("is-copied")) {
-    $("#copyButton").textContent = `📋 复制并打开${platforms[state.platform].name}App`;
-  }
   if (!$("#resultCard").hidden) showJumpHint();
 }
 
@@ -186,9 +182,9 @@ function showJumpHint(message) {
     return;
   }
   if (isWechat()) {
-    hint.innerHTML = `💡 <strong>当前在微信里。</strong><br>请先点右上角“…” → <strong>在浏览器打开</strong>，再生成、复制文案；复制成功后会尝试打开${platform.name}App。`;
+    hint.innerHTML = `💡 <strong>文案已生成。</strong><br>复制后点下方“打开${platform.name}App”会直接尝试跳转；若微信拦截，请点右上角“…” → <strong>在浏览器打开</strong>，再点对应按钮。`;
   } else {
-    hint.innerHTML = `💡 <strong>操作指引：</strong><br>1. 点“复制并打开${platform.name}App”<br>2. ${platform.route}`;
+    hint.innerHTML = `💡 <strong>操作指引：</strong><br>1. 复制文案<br>2. 点“打开${platform.name}App”<br>3. ${platform.route}`;
   }
 }
 
@@ -196,74 +192,55 @@ function generateReview() {
   if (!state.rating) return;
   $("#resultText").textContent = composeReview();
   $("#resultCard").hidden = false;
-  $("#copyButton").textContent = `📋 复制并打开${platforms[state.platform].name}App`;
+  $("#copyButton").textContent = "📋 复制文案";
   $("#copyButton").classList.remove("is-copied");
   showJumpHint();
   $("#resultCard").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-async function copyReview(event) {
+async function copyReview() {
   const text = $("#resultText").textContent;
-  const field = document.createElement("textarea");
-  field.value = text;
-  field.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0";
-  document.body.append(field);
-  field.focus();
-  field.select();
-  field.setSelectionRange(0, text.length);
   let copied = false;
   try {
-    copied = document.execCommand("copy");
-  } catch (_) {}
-  field.remove();
-  if (!copied) event.preventDefault();
-  if (!copied && navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      copied = true;
-    } catch (_) {}
+    await navigator.clipboard.writeText(text);
+    copied = true;
+  } catch (_) {
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0";
+    document.body.append(field);
+    field.focus();
+    field.select();
+    field.setSelectionRange(0, text.length);
+    try { copied = document.execCommand("copy"); } catch (_) {}
+    field.remove();
   }
   if (!copied) {
     showJumpHint("复制失败，请长按上方文案手动复制，再点下方打开平台 App。");
     return;
   }
-  $("#copyButton").textContent = "✅ 已复制";
+  $("#copyButton").textContent = "✅ 已复制，点下方打开平台";
   $("#copyButton").classList.add("is-copied");
-  if (isWechat()) {
-    event.preventDefault();
-    $("#wechatGuide").hidden = false;
-    showJumpHint();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  } else if (event.defaultPrevented) {
-    showJumpHint(`已复制，请点下方“打开${platforms[state.platform].name}App”。`);
-  } else {
-    $("#jumpHint").textContent = `已复制，正在尝试打开${platforms[state.platform].name}App。`;
-  }
+  showJumpHint();
 }
 
-function jumpTo(event, button) {
+function jumpTo(button) {
   const platform = platforms[button.dataset.jump];
   state.platform = button.dataset.jump;
   selectPlatform($(`.platform-button[data-platform="${state.platform}"]`));
-  if (isWechat()) {
-    event.preventDefault();
-    $("#wechatGuide").hidden = false;
-    $("#jumpHint").innerHTML = `💡 <strong>微信里可能无法打开${platform.name}App。</strong><br>请点右上角“…” → <strong>在浏览器打开</strong>，然后再次点击“打开${platform.name}App”。文案已复制，可在订单评价页粘贴。`;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    return;
-  }
-  $("#jumpHint").innerHTML = `💡 <strong>正在尝试打开${platform.name}App。</strong><br>${platform.route}<br>如果没有跳转，请手动打开 App；也可<a href="${platform.web}" target="_blank" rel="noopener noreferrer">进入${platform.name}手机版网页</a>。`;
+  const fallback = isWechat()
+    ? `如果微信没有打开 App，请点右上角“…” → <strong>在浏览器打开</strong>，再点对应按钮。`
+    : `如果没有跳转，请手动打开 App；也可<a href="${platform.web}" target="_blank" rel="noopener noreferrer">进入${platform.name}手机版网页</a>。`;
+  $("#jumpHint").innerHTML = `💡 <strong>正在尝试打开${platform.name}App。</strong><br>${platform.route}<br>${fallback}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (isWechat()) $("#wechatGuide").hidden = false;
-  $("#copyButton").href = appUrl(platforms[state.platform]);
-  $("#copyButton").textContent = `📋 复制并打开${platforms[state.platform].name}App`;
   $$(".jump-button").forEach((button) => { button.href = appUrl(platforms[button.dataset.jump]); });
   $$(".rating-button").forEach((button) => button.addEventListener("click", () => selectRating(button)));
   $$(".tag-button").forEach((button) => button.addEventListener("click", () => toggleTag(button)));
   $$(".platform-button").forEach((button) => button.addEventListener("click", () => selectPlatform(button)));
-  $$(".jump-button").forEach((button) => button.addEventListener("click", (event) => jumpTo(event, button)));
+  $$(".jump-button").forEach((button) => button.addEventListener("click", () => jumpTo(button)));
   $("#generateButton").addEventListener("click", generateReview);
   $("#againButton").addEventListener("click", generateReview);
   $("#copyButton").addEventListener("click", copyReview);

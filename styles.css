@@ -106,16 +106,12 @@ button:focus-visible, a:focus-visible { outline: 3px solid #223bbf; outline-offs
 }
 .result-actions { margin-top: 12px; }
 .copy-button, .again-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 13px 8px;
   border: 0;
   border-radius: 10px;
   color: #fff;
   font-size: 15px;
   font-weight: 600;
-  text-decoration: none;
 }
 .copy-button { flex: 1.5; background: #4caf50; }
 .copy-button.is-copied { background: #45a049; }

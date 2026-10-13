@@ -18,11 +18,11 @@
 
       <section class="wechat-guide" id="wechatGuide" hidden aria-label="微信打开指引">
         <h2>⚠️ 当前在微信里打开</h2>
-        <p>微信会拦截自动跳转 App。想顺利打开美团/携程：</p>
+        <p>点击下方“打开 App”会先尝试直接跳转。如果微信没有打开 App：</p>
         <ol>
           <li>点右上角“…”</li>
           <li>选择“在浏览器打开”</li>
-          <li>回到本页点“打开美团App/携程App”</li>
+          <li>回到本页，再点对应的“打开 App”按钮</li>
         </ol>
         <p class="wechat-note">不是网页坏了，是微信怕你乱跳，管得比前台还宽。</p>
       </section>
@@ -76,7 +76,7 @@
         <h2 class="card-title" id="resultTitle"><span aria-hidden="true">📝</span> 您的好评文案</h2>
         <div class="result-text" id="resultText" aria-live="polite"></div>
         <div class="result-actions">
-          <a class="copy-button" id="copyButton" href="#">📋 复制文案</a>
+          <button class="copy-button" id="copyButton" type="button">📋 复制文案</button>
           <button class="again-button" id="againButton" type="button">🔄 换一种</button>
         </div>
         <div class="jump-section">
