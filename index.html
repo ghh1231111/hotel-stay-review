@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#667eea" />
+    <meta name="description" content="分享您的入住体验，生成评价文案并前往预订平台发布。" />
+    <title>分享您的入住体验 ✨</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <h1>🏨 分享您的入住体验</h1>
+        <p>简单几步，一键生成好评文案</p>
+      </header>
+
+      <section class="wechat-guide" id="wechatGuide" hidden aria-label="微信打开指引">
+        <h2>⚠️ 当前在微信里打开</h2>
+        <p>微信会拦截自动跳转 App。想顺利打开美团/携程：</p>
+        <ol>
+          <li>点右上角“…”</li>
+          <li>选择“在浏览器打开”</li>
+          <li>回到本页点“打开美团App/携程App”</li>
+        </ol>
+        <p class="wechat-note">不是网页坏了，是微信怕你乱跳，管得比前台还宽。</p>
+      </section>
+
+      <section class="card" aria-labelledby="ratingTitle">
+        <h2 class="card-title" id="ratingTitle"><span aria-hidden="true">⭐</span> 您的满意度</h2>
+        <div class="rating-options" role="group" aria-label="满意度">
+          <button class="rating-button" type="button" data-rating="5" aria-pressed="false">
+            <span class="rating-stars" aria-hidden="true">⭐⭐⭐⭐⭐</span>
+            <span class="rating-label">非常满意</span>
+          </button>
+          <button class="rating-button" type="button" data-rating="4" aria-pressed="false">
+            <span class="rating-stars" aria-hidden="true">⭐⭐⭐⭐</span>
+            <span class="rating-label">满意</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="tagsTitle">
+        <h2 class="card-title" id="tagsTitle"><span aria-hidden="true">✨</span> 哪些方面让您满意？（可多选）</h2>
+        <div class="tag-options" role="group" aria-label="满意的方面">
+          <button class="tag-button" type="button" data-tag="卫生" aria-pressed="false">🧹 卫生干净</button>
+          <button class="tag-button" type="button" data-tag="服务" aria-pressed="false">😊 服务热情</button>
+          <button class="tag-button" type="button" data-tag="交通" aria-pressed="false">🚇 交通便利</button>
+          <button class="tag-button" type="button" data-tag="性价比" aria-pressed="false">💰 性价比高</button>
+          <button class="tag-button" type="button" data-tag="设施" aria-pressed="false">🛋️ 设施齐全</button>
+          <button class="tag-button" type="button" data-tag="安静" aria-pressed="false">😴 安静舒适</button>
+          <button class="tag-button" type="button" data-tag="早餐" aria-pressed="false">🍳 早餐好吃</button>
+          <button class="tag-button" type="button" data-tag="床品" aria-pressed="false">🛏️ 床品舒服</button>
+          <button class="tag-button" type="button" data-tag="热水" aria-pressed="false">🚿 热水充足</button>
+          <button class="tag-button" type="button" data-tag="停车" aria-pressed="false">🅿️ 停车方便</button>
+          <button class="tag-button" type="button" data-tag="周边" aria-pressed="false">🎯 周边好玩</button>
+          <button class="tag-button" type="button" data-tag="WiFi" aria-pressed="false">📶 WiFi快</button>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="platformTitle">
+        <h2 class="card-title" id="platformTitle"><span aria-hidden="true">📱</span> 发布到哪个平台？</h2>
+        <div class="platform-options" role="group" aria-label="发布平台">
+          <button class="platform-button is-active" type="button" data-platform="meituan" aria-pressed="true"><span class="platform-icon" aria-hidden="true">🦘</span>美团</button>
+          <button class="platform-button" type="button" data-platform="ctrip" aria-pressed="false"><span class="platform-icon" aria-hidden="true">🐬</span>携程</button>
+          <button class="platform-button" type="button" data-platform="fliggy" aria-pressed="false"><span class="platform-icon" aria-hidden="true">🐷</span>飞猪</button>
+        </div>
+      </section>
+
+      <section class="card card-action" aria-label="生成文案">
+        <button class="generate-button" id="generateButton" type="button" disabled>🎉 一键生成好评文案</button>
+      </section>
+
+      <section class="card result-card" id="resultCard" hidden aria-labelledby="resultTitle">
+        <h2 class="card-title" id="resultTitle"><span aria-hidden="true">📝</span> 您的好评文案</h2>
+        <div class="result-text" id="resultText" aria-live="polite"></div>
+        <div class="result-actions">
+          <button class="copy-button" id="copyButton" type="button">📋 复制文案</button>
+          <button class="again-button" id="againButton" type="button">🔄 换一种</button>
+        </div>
+        <div class="jump-section">
+          <h3>📍 下一步：去平台粘贴评价</h3>
+          <div class="jump-options">
+            <button class="jump-button meituan" type="button" data-jump="meituan"><span aria-hidden="true">🦘</span>打开美团App</button>
+            <button class="jump-button ctrip" type="button" data-jump="ctrip"><span aria-hidden="true">🐬</span>打开携程App</button>
+            <button class="jump-button fliggy" type="button" data-jump="fliggy"><span aria-hidden="true">🐷</span>打开飞猪App</button>
+          </div>
+          <div class="jump-hint" id="jumpHint" role="status"></div>
+        </div>
+      </section>
+
+      <footer>感谢您的真实评价 ❤️</footer>
+    </main>
+  </body>
+</html>
