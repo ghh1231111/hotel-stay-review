@@ -132,8 +132,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #223bbf; outline-offs
 }
 .jump-button span { display: block; margin-bottom: 3px; font-size: 20px; }
 .jump-button.meituan { background: #ffc107; color: #333; }
-.jump-button.ctrip { background: #2b7de9; }
-.jump-button.fliggy { background: #ff6b35; }
+.jump-button.dianping { background: #ff6b35; }
 .jump-button.is-secondary { transform: scale(.95); opacity: .4; }
 .jump-hint { margin-top: 10px; padding: 10px; border-radius: 8px; background: #fff3cd; color: #856404; font-size: 12px; line-height: 1.6; }
 .jump-hint a { color: #2b7de9; font-weight: 700; }
